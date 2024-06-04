@@ -21,7 +21,8 @@ public class RedisController {
     private RedisService redisService;
 
     @PostMapping("lock")
-    public void getLock(@RequestParam(value = "time") long time) throws InterruptedException, ExecutionException {
+    public String getLock(@RequestParam(value = "time") long time) throws InterruptedException, ExecutionException {
         redisService.lock(time);
+        return "1";
     }
 }

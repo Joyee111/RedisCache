@@ -10,5 +10,11 @@ import java.util.concurrent.ExecutionException;
 public interface RedisStrategyActuator {
     public void youngOldActuator(RedisStrategy redisStrategy);
 
+    /**
+     * 最小粒度的续租锁 保证任意时刻的宕机 不会出现死锁的情况
+     * @param time
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     public void lock (long time) throws InterruptedException, ExecutionException;
 }
