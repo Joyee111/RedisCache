@@ -20,8 +20,8 @@ spring:
     #          class: com.example.kafkademo.config.CustomizePartitioner
     consumer:
       group-id: testGroup #默认的消费组ID
-      enable-auto-commit: true #是否自动提交offset
-      auto-commit-interval: 2000 #提交offset延时
+      enable-auto-commit: false #是否自动提交offset
+      #auto-commit-interval: 2000 #提交offset延时
       # 当kafka中没有初始offset或offset超出范围时将自动重置offset
       # earliest:重置为分区中最小的offset;
       # latest:重置为分区中最新的offset(消费分区中新产生的数据);
@@ -40,4 +40,5 @@ spring:
     listener:
       missing-topics-fatal: false # consumer listener topics 不存在时，启动项目就会报错
       type: batch #设置批量消费
+      ack-mode: manual
 
