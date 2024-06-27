@@ -1,5 +1,7 @@
 package com.joyee.concurrency.future;
 
+import lombok.extern.java.Log;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -8,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Log
 public class ConcurrencyHandler {
 
     /**
@@ -26,14 +29,14 @@ public class ConcurrencyHandler {
                     result.add(argsItem);
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.info(e.getMessage());
                 }finally {
                     countDownLatch.countDown();
                 }
             }).start();
         });
         countDownLatch.await();
-        System.out.println("完成了："+result.size()+"个线程");
+        log.info("完成了："+result.size()+"个线程");
         return result.stream().allMatch(resultItem->resultItem);
     }
 
@@ -52,15 +55,16 @@ public class ConcurrencyHandler {
                 try {
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    log.info(e.getMessage());
                 }
                 return entry.getValue();
             }));
         });
         CompletableFuture.allOf(copyOnWriteArrayList.toArray(new CompletableFuture[copyOnWriteArrayList.size()])).join();
-        System.out.println("完成了："+copyOnWriteArrayList.size()+"个线程");
+        log.info("完成了："+copyOnWriteArrayList.size()+"个线程");
         if(copyOnWriteArrayList.stream().anyMatch(CompletableFuture::isCompletedExceptionally)){
-            throw new InterruptedException();
+            log.info("this CompletableFuture completed exceptionally");
+            return false;
         }else {
             return copyOnWriteArrayList.stream().allMatch(item -> item.getNow(Boolean.FALSE));
         }
