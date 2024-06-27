@@ -22,8 +22,6 @@ public class KafkaMessageListener{
             // 消息处理逻辑
             CrmContactDO bean = JSONUtil.toBean(record.get(0), CrmContactDO.class);
             System.out.println("Received message in listener: " + bean.getName());
-
-
             // 手动确认消息
             acknowledgment.acknowledge();
         } catch (Exception e) {
