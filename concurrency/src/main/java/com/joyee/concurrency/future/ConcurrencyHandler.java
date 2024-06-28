@@ -4,15 +4,14 @@ import lombok.extern.java.Log;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log
 public class ConcurrencyHandler {
 
+    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(10,20,5,TimeUnit.SECONDS,new LinkedBlockingDeque<>(2000));
     /**
      * 使用{@link CountDownLatch} 并发执行程序并返回
      * 使用{@link CopyOnWriteArrayList} 保证线程安全
@@ -24,16 +23,17 @@ public class ConcurrencyHandler {
         CountDownLatch countDownLatch = new CountDownLatch(args.size());
         List<Boolean> result = new CopyOnWriteArrayList();
         args.stream().forEach(argsItem->{
-            new Thread(() -> {
+            THREAD_POOL_EXECUTOR.execute(() -> {
                 try {
                     result.add(argsItem);
+                    log.info("CountDownLatch当前线程："+Thread.currentThread().getName()+"开始执行");
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     log.info(e.getMessage());
                 }finally {
                     countDownLatch.countDown();
                 }
-            }).start();
+            });
         });
         countDownLatch.await();
         log.info("完成了："+result.size()+"个线程");
@@ -53,12 +53,13 @@ public class ConcurrencyHandler {
         collect.entrySet().forEach(entry->{
             copyOnWriteArrayList.add(CompletableFuture.supplyAsync(()->{
                 try {
+                    log.info("CompletableFuture:当前线程："+Thread.currentThread().getName()+"开始执行");
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     log.info(e.getMessage());
                 }
                 return entry.getValue();
-            }));
+            },THREAD_POOL_EXECUTOR));
         });
         CompletableFuture.allOf(copyOnWriteArrayList.toArray(new CompletableFuture[copyOnWriteArrayList.size()])).join();
         log.info("完成了："+copyOnWriteArrayList.size()+"个线程");
