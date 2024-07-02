@@ -1,10 +1,8 @@
 package com.joyee.concurrency.task;
 
-import org.springframework.lang.Nullable;
+import lombok.extern.java.Log;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -13,36 +11,37 @@ import java.util.function.Supplier;
  * @param <T> 请求参数 类型
  * @param <R> 返回值 类型
  */
-public abstract class CommonTask<T, R> implements Task<T,R>, Supplier<R> {
+@Log
+public abstract class CommonTask<T, R> implements Task<T, R>, Supplier<R> {
 
     private final Consumer<T> beforeTask;
-    private final Consumer<T>  afterTask;
+    private final Consumer<T> afterTask;
     private T t;
-    private R result;
+    private R r;
     private Boolean status = false;
-    private final Consumer<T> doTask = (t)->{
-            result = doTask(t);
+    private final Consumer<T> doTask = (t) -> {
+        r = doTask(t);
     };
-    private final Supplier<R> supplierTask = ()->{
-        run();
-        return getResult();
+    private final Supplier<R> supplierTask = () -> {
+        this.run();
+        return get();
     };
 
-    public CommonTask(Consumer<T> beforeTask, Consumer<T>  afterTask,  T t , R r) {
+    public CommonTask(Consumer<T> beforeTask, Consumer<T> afterTask, T t, R r) {
         this.beforeTask = beforeTask;
         this.afterTask = afterTask;
         this.t = t;
-        this.result = r;
+        this.r = r;
     }
 
-    public CommonTask(Consumer<T> beforeTask,  Consumer<T>  afterTask, R r) {
+    public CommonTask(Consumer<T> beforeTask, Consumer<T> afterTask, R r) {
         this.beforeTask = beforeTask;
         this.afterTask = afterTask;
-        this.result = r;
+        this.r = r;
     }
 
     public R getResult() {
-        return result;
+        return r;
     }
 
     public Boolean getStatus() {
@@ -57,6 +56,7 @@ public abstract class CommonTask<T, R> implements Task<T,R>, Supplier<R> {
     public void run() {
         beforeTask.andThen(doTask).andThen(afterTask).accept(t);
         status = true;
+        log.info(Thread.currentThread().getName());
     }
 
     @Override
