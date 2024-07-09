@@ -3,3 +3,15 @@ server:
 spring:
   application:
     name: concurrency
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 114.115.239.109:8847
+        username: nacos
+        password: Aa123456@
+      config:
+        server-addr: 114.115.239.109:8847
+        username: nacos
+        password: Aa123456@
+        import-check:
+          enabled: false

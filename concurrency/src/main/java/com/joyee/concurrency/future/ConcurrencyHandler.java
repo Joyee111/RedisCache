@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class ConcurrencyHandler {
 
-    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(100, 200, 5, TimeUnit.SECONDS, new LinkedBlockingDeque<>(2000), Thread.ofVirtual().factory());
+    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(100, 200, 5, TimeUnit.SECONDS, new LinkedBlockingDeque<>(2000));
 
 
     /**
@@ -30,7 +30,7 @@ public class ConcurrencyHandler {
             THREAD_POOL_EXECUTOR.execute(commonTask);
         });
         countDownLatch.await();
-        log.info("执行状态" + commonTaskList.stream().map(CommonTask::getStatus).collect(Collectors.toUnmodifiableList()));
+        log.info("执行状态" + commonTaskList.stream().map(CommonTask::getStatus).collect(Collectors.toList()));
         return commonTaskList.stream().allMatch(CommonTask::getStatus);
     }
 
@@ -51,7 +51,7 @@ public class ConcurrencyHandler {
         if (copyOnWriteArrayList.stream().anyMatch(CompletableFuture::isCompletedExceptionally)) {
             throw new InterruptedException("this CompletableFuture completed exceptionally");
         } else {
-            return copyOnWriteArrayList.stream().map(item -> item.getNow(Boolean.FALSE)).collect(Collectors.toUnmodifiableList());
+            return copyOnWriteArrayList.stream().map(item -> item.getNow(Boolean.FALSE)).collect(Collectors.toList());
         }
     }
 }
