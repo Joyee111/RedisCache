@@ -9,8 +9,8 @@ public class KafkaServiceFallbackFactory implements FallbackFactory<KafkaService
         return new KafkaService() {
 
             @Override
-            public String sendNormalMessage() {
-                return cause.getMessage();
+            public String sendNormalMessage(String message) {
+                return "";
             }
         };
     }

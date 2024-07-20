@@ -25,15 +25,7 @@ public class TestController {
     @GetMapping("/kafka/{message}")
     public void sendNormalMessage(@PathVariable("message") String message) {
         CrmContactDO crmContactDO = new CrmContactDO().setName("王敬一");
-        kafkaTemplate.send("sb_topic", JSONUtil.toJsonStr(crmContactDO)).thenAccept(result->{
-            log.info(result.getProducerRecord().value());
-        }).whenComplete(((unused, throwable) -> {
-            if (throwable != null) {
-                log.error(throwable.getMessage());
-            }else{
-                log.info("未见异常，无需重试处理");
-            }
-        }));
+        kafkaTemplate.send("sb_topic", JSONUtil.toJsonStr(crmContactDO));
     }
 
 }

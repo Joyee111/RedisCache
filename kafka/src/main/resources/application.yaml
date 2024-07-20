@@ -41,4 +41,15 @@ spring:
       missing-topics-fatal: false # consumer listener topics 不存在时，启动项目就会报错
       type: batch #设置批量消费
       ack-mode: manual
-
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 114.115.239.109:8847
+        username: nacos
+        password: Aa123456@
+      config:
+        server-addr: 114.115.239.109:8847
+        username: nacos
+        password: Aa123456@
+        import-check:
+          enabled: false
