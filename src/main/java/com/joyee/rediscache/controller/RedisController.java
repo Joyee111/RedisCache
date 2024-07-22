@@ -20,7 +20,7 @@ public class RedisController {
     @Autowired
     private RedisService redisService;
 
-    @PostMapping("lock")
+    @PostMapping("/lock")
     public String getLock(@RequestParam(value = "time") long time) throws InterruptedException, ExecutionException {
         redisService.lock(time);
         return "1";

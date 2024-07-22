@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Service
 @Log
@@ -38,7 +38,8 @@ public class RedisStrategyActuatorManager implements RedisStrategyActuator {
             log.info("拿不到锁");
         } while (Boolean.FALSE.equals(redisTemplate.opsForValue().setIfAbsent("key", "value", expire, TimeUnit.MILLISECONDS)));
         log.info("拿到锁了");
-        Thread virtualThread = Thread.ofVirtual().factory().newThread((() -> {
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 15, 20, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+        threadPoolExecutor.execute(() -> {
             for (; ; ) { // 循环执行 模拟续租
                 log.info("子任务  运行在 " + Thread.currentThread());
                 try {
@@ -50,13 +51,12 @@ public class RedisStrategyActuatorManager implements RedisStrategyActuator {
                     break;
                 }
             }
-        }));
-        virtualThread.start();
+        });
         log.info("处理主线程业务");
         //处理业务 模拟阻塞
         Thread.sleep(5000 * expire);
         //触发InterruptedException 跳出续租逻辑
-        virtualThread.interrupt();
+        threadPoolExecutor.shutdownNow();
         log.info("处理主线程业务完成");
     }
 }
